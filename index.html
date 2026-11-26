@@ -560,7 +560,7 @@ const APPS = [
     img: "barq.webp",
     logo: "barq-logo.png",
     alt: "Barq on three phones: live order tracking, home screen and a store page",
-    link: "https://github.com/MohammedAlhatoo/barq"
+    link: "barq.html"
   },
   {
     name: "Smilo Dental",
@@ -624,7 +624,7 @@ const APPS = [
     $('s-tags').textContent = a.tags;
     const link = $('s-link');
     link.href = a.link || '#contact';
-    if (a.link) { link.target = '_blank'; } else { link.removeAttribute('target'); }
+    if (a.link && /^https?:/.test(a.link)) { link.target = '_blank'; } else { link.removeAttribute('target'); }
     $('show-media').innerHTML = hasShot(a)
       ? `<img src="${a.img}" alt="${a.alt || a.name}">`
       : `<div class="phone-ph"><div>Screenshot<br>coming soon</div></div>`;
