@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nova — Case study · Amani Mosa</title>
+<meta name="description" content="Nova: a fashion store app built in Flutter with Cubit, sizes, a cart, three payment methods and a built-in wallet.">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700;800&display=swap">
+<style>
+/* =========================================================
+   APP COLORS — change these per project
+   ========================================================= */
+:root{
+  --app:#FF7750; --app-dark:#C9472A; --app-soft:#FFF3EE; --app-glow:rgba(255,119,80,.30);
+  --ink:#1E1A17; --muted:#6A6056; --line:#EEE7DF; --brand:#C9530C;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:#fff;color:var(--ink);font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1100px;margin:0 auto;padding:0 40px}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;justify-content:space-between;align-items:center;height:64px}
+.back{display:inline-flex;gap:8px;align-items:center;font-weight:700;color:var(--muted);transition:color .2s}
+.back:hover{color:var(--ink)}
+.brand{display:flex;gap:10px;align-items:center;font-weight:700}
+.logo{background:var(--brand);color:#fff;font:800 11px 'JetBrains Mono',monospace;padding:7px 8px;border-radius:9px}
+
+/* header */
+.store{display:flex;gap:34px;align-items:center;padding:44px 0 32px}
+.icons{position:relative;width:170px;height:156px;flex:0 0 170px}
+.icons img{width:140px;height:140px;border-radius:34px;box-shadow:0 18px 38px var(--app-glow)}
+.icons .cap{position:absolute;right:0;bottom:0;width:80px;height:80px;border-radius:22px;background:#1E1A17;border:4px solid #fff;display:grid;place-items:center;box-shadow:0 12px 26px rgba(0,0,0,.25)}
+h1{font-size:46px;line-height:1.1;margin:0;font-weight:800;letter-spacing:-.5px}
+.dev{color:var(--app);font-weight:700;margin-top:4px}
+.sub{color:var(--muted);font-size:18px}
+.btns{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+.btn{display:inline-flex;gap:8px;align-items:center;padding:12px 24px;border-radius:999px;font-weight:800;font-size:16px;border:0;cursor:pointer;font-family:inherit;transition:transform .2s, box-shadow .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-app{background:var(--app);color:#fff;box-shadow:0 10px 22px var(--app-glow)}
+.btn-soft{background:#F2EEE9;color:var(--ink)}
+
+.info{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:16px 0;text-align:center}
+.info div{border-right:1px solid var(--line);padding:0 8px}
+.info div:last-child{border:0}
+.info small{display:block;color:#8A7F74;font-size:12px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.info b{font-size:18px}
+
+h2{font-size:26px;margin:52px 0 16px;font-weight:800;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.arrows{display:flex;gap:8px}
+.arrows button{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:18px;cursor:pointer;color:var(--ink);transition:background .2s}
+.arrows button:hover{background:var(--app-soft)}
+
+/* preview carousel */
+.shots{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding-bottom:6px;scrollbar-width:none}
+.shots::-webkit-scrollbar{display:none}
+.shots>*{scroll-snap-align:start}
+.video{flex:0 0 440px;border-radius:26px;background:radial-gradient(circle at 30% 30%,var(--app-glow),transparent 60%),#1E1A17;display:grid;place-items:center;color:#fff;position:relative;cursor:pointer;border:0;font-family:inherit}
+.video .pl{width:78px;height:78px;border-radius:50%;background:var(--app);display:grid;place-items:center;box-shadow:0 0 0 12px var(--app-glow);transition:transform .25s}
+.video:hover .pl{transform:scale(1.08)}
+.video small{position:absolute;left:24px;bottom:20px;font-weight:700;opacity:.9;text-align:left}
+.video small b{display:block;font-size:20px}
+.lab{flex:0 0 auto;writing-mode:vertical-rl;transform:rotate(180deg);font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;padding:0 6px;border-radius:14px}
+.lab.c{color:var(--app-dark);background:var(--app-soft)}
+.lab.d{color:#FF9A52;background:#1E1A17}
+.shot{flex:0 0 236px;border-radius:26px;overflow:hidden;background:var(--app-soft);padding:18px 18px 0;cursor:zoom-in;border:0;text-align:left;font-family:inherit;transition:transform .25s}
+.shot:hover{transform:translateY(-4px)}
+.shot.dark{background:#1E1A17}
+.shot p{margin:0 0 12px;font-weight:800;font-size:16px;color:var(--app-dark);line-height:1.3;min-height:42px}
+.shot.dark p{color:#FF9A52}
+.shot img{border-radius:18px 18px 0 0;aspect-ratio:9/15.5;object-fit:cover;object-position:top;width:100%}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:16px}
+.dots i{width:7px;height:7px;border-radius:4px;background:#DDD3C8;transition:all .3s}
+.dots i.on{width:22px;background:var(--app)}
+
+/* about / built */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:44px}
+.about p{color:var(--muted);margin:0 0 12px}
+.built{background:#FAF7F3;border-radius:22px;padding:6px 22px}
+.built div{display:flex;gap:14px;align-items:flex-start;padding:15px 0;border-bottom:1px solid var(--line)}
+.built div:last-child{border:0}
+.ck{flex:0 0 26px;height:26px;border-radius:50%;background:var(--app);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:800;margin-top:2px}
+.built b{display:block}
+.built small{color:var(--muted);font-size:15px}
+
+.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.feat{display:flex;gap:14px;padding:18px;border:1px solid var(--line);border-radius:18px;transition:border-color .2s, transform .2s}
+.feat:hover{border-color:var(--app);transform:translateY(-2px)}
+.feat .ic{flex:0 0 44px;height:44px;border-radius:12px;background:var(--app-soft);display:grid;place-items:center;font-size:20px}
+.feat b{display:block;font-size:16px}
+.feat small{color:var(--muted);font-size:14px}
+
+.bts{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.bt{border-radius:22px;padding:24px;background:var(--app-soft);border:1px solid var(--line)}
+.q,.a{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+.q{color:#B3261E}.a{color:#1E7A46;margin-top:14px}
+.bt p{margin:4px 0 0}
+
+.stack{display:flex;flex-wrap:wrap;gap:10px}
+.pill{background:#F6F2ED;border-radius:999px;padding:9px 16px;font:700 14px 'JetBrains Mono',monospace}
+table{width:100%;border-collapse:collapse;font-size:16px}
+td{padding:12px 0;border-bottom:1px solid var(--line)}
+td:first-child{color:#8A7F74}
+td:last-child{text-align:right;font-weight:600}
+
+.moreapps{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:70px}
+.ma{display:flex;gap:16px;align-items:center;padding:18px;border:1px solid var(--line);border-radius:20px;transition:transform .2s, box-shadow .2s}
+.ma:hover{transform:translateY(-3px);box-shadow:0 16px 30px rgba(0,0,0,.06)}
+.ma img{width:68px;height:68px;border-radius:18px}
+.ma b{display:block;font-size:18px}
+.ma small{color:var(--muted)}
+.ma .go{margin-left:auto;padding:9px 18px;border-radius:999px;background:#F2EEE9;font-weight:800;font-size:14px}
+
+/* modals */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(20,14,10,.85);backdrop-filter:blur(6px);display:none;place-items:center;padding:30px}
+.modal.open{display:grid;animation:fade .25s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.x{position:absolute;top:22px;right:26px;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;border:0;font-size:22px;cursor:pointer}
+.player{width:min(960px,92vw);aspect-ratio:16/9;border-radius:20px;overflow:hidden;background:#000}
+.player iframe{width:100%;height:100%;border:0}
+.lb-img{max-height:72vh;border-radius:26px;box-shadow:0 30px 60px rgba(0,0,0,.4)}
+.lb-cap{color:#fff;text-align:center;margin-top:16px;font-weight:800;font-size:20px}
+.lb-cnt{color:#bbb;text-align:center;font-weight:600;font-size:15px}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;border:0;font-size:28px;cursor:pointer}
+.nav.l{left:4vw}.nav.r{right:4vw}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease}
+.reveal.in-view{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}*{scroll-behavior:auto!important}}
+
+@media (max-width:760px){
+  .wrap{padding:0 20px}
+  .store{flex-direction:column;align-items:flex-start;gap:18px;padding:28px 0 22px}
+  .icons{width:130px;height:118px;flex-basis:auto}.icons img{width:104px;height:104px;border-radius:26px}.icons .cap{width:60px;height:60px;border-radius:16px}
+  h1{font-size:32px}
+  .info{grid-template-columns:repeat(5,minmax(120px,1fr));overflow-x:auto}
+  .video{flex-basis:290px}.shot{flex-basis:200px}
+  .two,.feats,.bts,.moreapps{grid-template-columns:1fr}
+  .arrows{display:none}
+  .brand span:last-child{display:none}
+  .nav{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <a class="back" href="index.html#apps">← Back to apps</a>
+  <a class="brand" href="index.html"><span class="logo">&lt;A/M&gt;</span><span>Amani Mosa</span></a>
+</div></header>
+
+<main class="wrap">
+
+  <section class="store">
+    <div class="icons"><img src="nova-logo.png" alt="Nova app icon"></div>
+    <div>
+      <h1>Nova</h1>
+      <div class="dev">Amani Mosa</div>
+      <div class="sub">Shoes and clothes, with a built-in wallet</div>
+      <div class="btns">
+        
+        <button class="btn btn-app" id="demo-btn" type="button" hidden>▶ Demo video</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="info"><div><small>Category</small><b>Fashion</b></div><div><small>Platforms</small><b>Android · iOS</b></div><div><small>State</small><b>Cubit</b></div><div><small>Payments</small><b>3 methods</b></div><div><small>Highlight</small><b>Wallet</b></div></div>
+
+  <section class="reveal">
+    <h2>Preview <span class="arrows"><button type="button" id="prev" aria-label="Previous">‹</button><button type="button" id="next" aria-label="Next">›</button></span></h2>
+    <div class="shots" id="shots"></div>
+    <div class="dots" id="dots"></div>
+  </section>
+
+  <section class="two reveal">
+    <div class="about"><h2>About this app</h2><p>Nova is a fashion store app for shoes and clothes. Shoppers browse recommended products, pick a size, add to the cart and check out with their wallet, a card or cash on delivery.</p><p>The built-in wallet keeps a balance and a full transaction history, and every purchase appears in My Purchases with its tracking status. Products are dummy data for now, kept separate so a real API can plug in later.</p></div>
+    <div><h2>What I built</h2><div class="built"><div><span class="ck">✓</span><span><b>Wallet &amp; checkout</b><small>Balance, top-up, transactions and a payment check</small></span></div><div><span class="ck">✓</span><span><b>Cart &amp; sizes</b><small>Sizes S–XXL, quantities and a live total</small></span></div><div><span class="ck">✓</span><span><b>Purchases &amp; tracking</b><small>Order history with status tracking</small></span></div></div></div>
+  </section>
+
+  <section class="reveal"><h2>Features</h2><div class="feats"><div class="feat"><span class="ic">👟</span><span><b>Sizes S–XXL</b><small>Pick a size before adding</small></span></div><div class="feat"><span class="ic">🛍️</span><span><b>Smart cart</b><small>Subtotal, shipping and total</small></span></div><div class="feat"><span class="ic">💳</span><span><b>3 payment methods</b><small>Wallet, card or cash</small></span></div><div class="feat"><span class="ic">👛</span><span><b>Wallet &amp; top-up</b><small>Balance and transaction history</small></span></div><div class="feat"><span class="ic">📦</span><span><b>Track orders</b><small>From My Purchases</small></span></div><div class="feat"><span class="ic">👀</span><span><b>Recently viewed</b><small>Jump back to products</small></span></div></div></section>
+
+  <section class="reveal"><h2>Behind the scenes</h2><div class="bts"><div class="bt"><div class="q">● Challenge</div><p>A wallet payment must never leave the balance below zero.</p><div class="a">● Solution</div><p>Checkout asks the wallet to pay first; if the balance isn&#x27;t enough the payment is refused and the user is told, so no order is placed.</p></div><div class="bt"><div class="q">● Challenge</div><p>The cart, wallet and purchases are used on many screens at once.</p><div class="a">● Solution</div><p>They live in app-wide Cubits, so adding to the cart or paying updates the badge, totals and history everywhere instantly.</p></div></div></section>
+
+  <section class="two reveal">
+    <div><h2>Built with</h2><div class="stack"><span class="pill">Flutter</span><span class="pill">Cubit (flutter_bloc)</span><span class="pill">ScreenUtil</span><span class="pill">Google Fonts</span></div></div>
+    <div><h2>Information</h2><table><tr><td>Category</td><td>E-commerce · Fashion</td></tr><tr><td>Payments</td><td>Wallet · Card · Cash</td></tr><tr><td>Language</td><td>English</td></tr><tr><td>Year</td><td>2026</td></tr></table></div>
+  </section>
+
+  <section class="reveal"><h2>More apps by Amani</h2><div class="moreapps"><a class="ma" href="barq.html"><img src="barq-logo.png" alt=""><span><b>Barq &amp; Barq Captain</b><small>Grocery delivery</small></span><span class="go">View</span></a><a class="ma" href="wasl.html"><img src="wasl-logo.png" alt=""><span><b>Wasl</b><small>Volunteering platform</small></span><span class="go">View</span></a><a class="ma" href="smilo.html"><img src="smilo-logo.png" alt=""><span><b>Smilo Dental</b><small>Clinic booking app</small></span><span class="go">View</span></a><a class="ma" href="kids.html"><img src="kids-logo.png" alt=""><span><b>Kids World</b><small>Learning app for kids</small></span><span class="go">View</span></a></div></section>
+
+</main>
+
+<!-- video modal -->
+<div class="modal" id="vmodal" role="dialog" aria-label="Demo video">
+  <button class="x" type="button" data-close aria-label="Close">✕</button>
+  <div class="player" id="player"></div>
+</div>
+
+<!-- screenshot lightbox -->
+<div class="modal" id="lb" role="dialog" aria-label="Screenshot">
+  <button class="x" type="button" data-close aria-label="Close">✕</button>
+  <button class="nav l" type="button" id="lb-prev" aria-label="Previous">‹</button>
+  <button class="nav r" type="button" id="lb-next" aria-label="Next">›</button>
+  <div><img class="lb-img" id="lb-img" alt=""><div class="lb-cap" id="lb-cap"></div><div class="lb-cnt" id="lb-cnt"></div></div>
+</div>
+
+<script>
+/* =========================================================
+   EDIT HERE
+   VIDEO: paste the YouTube video ID (the part after v= in the link).
+          Leave "" to hide the video until it's ready.
+   CUSTOMER / CAPTAIN: one line per screenshot.
+   ========================================================= */
+const VIDEO = { youtubeId: "", title: "Nova in action", length: "" };
+
+const CUSTOMER = [
+  { img: "nova-home.webp", caption: "Recommended for you" },
+  { img: "nova-product.webp", caption: "Pick your size" },
+  { img: "nova-checkout.webp", caption: "3 ways to pay" },
+  { img: "nova-wallet.webp", caption: "Wallet & transactions" }
+];
+
+const CAPTAIN = [];
+
+/* ---------- build the carousel ---------- */
+const shots = document.getElementById('shots');
+const all = [];
+if (VIDEO.youtubeId) {
+  shots.insertAdjacentHTML('beforeend',
+    `<button class="video" type="button" data-video><span class="pl"><svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span><small>Demo${VIDEO.length ? ' · ' + VIDEO.length : ''}<b>${VIDEO.title}</b></small></button>`);
+  document.getElementById('demo-btn').hidden = false;
+}
+function addGroup(list, label, cls, dark) {
+  if (!list.length) return;
+  if (CAPTAIN.length) shots.insertAdjacentHTML('beforeend', `<div class="lab ${cls}">${label}</div>`);
+  list.forEach(s => {
+    const i = all.length; all.push(s);
+    shots.insertAdjacentHTML('beforeend',
+      `<button class="shot${dark ? ' dark' : ''}" type="button" data-i="${i}"><p>${s.caption}</p><img src="${s.img}" alt="${s.caption}" loading="lazy"></button>`);
+  });
+}
+addGroup(CUSTOMER, 'Customer app', 'c', false);
+addGroup(CAPTAIN, 'Barq Captain', 'd', true);
+
+/* dots + arrows */
+const dots = document.getElementById('dots');
+const pages = () => Math.max(1, Math.ceil(shots.scrollWidth / shots.clientWidth));
+function drawDots() {
+  const n = pages(), cur = Math.round(shots.scrollLeft / shots.clientWidth);
+  dots.innerHTML = n > 1 ? Array.from({length: n}, (_, k) => `<i class="${k === cur ? 'on' : ''}"></i>`).join('') : '';
+  document.querySelector('.arrows').style.visibility = n > 1 ? 'visible' : 'hidden';
+}
+shots.addEventListener('scroll', () => requestAnimationFrame(drawDots));
+window.addEventListener('resize', drawDots);
+document.getElementById('prev').onclick = () => shots.scrollBy({left: -shots.clientWidth * .8});
+document.getElementById('next').onclick = () => shots.scrollBy({left:  shots.clientWidth * .8});
+window.addEventListener('load', drawDots);
+
+/* ---------- modals ---------- */
+const vmodal = document.getElementById('vmodal'), lb = document.getElementById('lb');
+function openVideo() {
+  document.getElementById('player').innerHTML =
+    `<iframe src="https://www.youtube-nocookie.com/embed/${VIDEO.youtubeId}?autoplay=1&rel=0" allow="autoplay; fullscreen" allowfullscreen title="Nova demo"></iframe>`;
+  vmodal.classList.add('open');
+}
+let cur = 0;
+function show(i) {
+  cur = (i + all.length) % all.length;
+  document.getElementById('lb-img').src = all[cur].img;
+  document.getElementById('lb-img').alt = all[cur].caption;
+  document.getElementById('lb-cap').textContent = all[cur].caption;
+  document.getElementById('lb-cnt').textContent = `${cur + 1} / ${all.length}`;
+}
+function closeAll() {
+  vmodal.classList.remove('open'); lb.classList.remove('open');
+  document.getElementById('player').innerHTML = '';
+}
+shots.addEventListener('click', e => {
+  const s = e.target.closest('[data-i]'); if (s) { show(+s.dataset.i); lb.classList.add('open'); }
+  if (e.target.closest('[data-video]')) openVideo();
+});
+document.getElementById('demo-btn').onclick = openVideo;
+document.getElementById('lb-prev').onclick = () => show(cur - 1);
+document.getElementById('lb-next').onclick = () => show(cur + 1);
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = closeAll);
+[vmodal, lb].forEach(m => m.addEventListener('click', e => { if (e.target === m) closeAll(); }));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeAll();
+  if (lb.classList.contains('open')) { if (e.key === 'ArrowLeft') show(cur - 1); if (e.key === 'ArrowRight') show(cur + 1); }
+});
+
+/* ---------- reveal on scroll ---------- */
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) { x.target.classList.add('in-view'); io.unobserve(x.target); } }), {threshold: .12});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
